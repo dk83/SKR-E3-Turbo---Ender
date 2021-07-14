@@ -23,7 +23,8 @@
      https://marlinfw.org/docs/features/lin_advance.html
      https://marlinfw.org/tools/lin_advance/k-factor.html
 - Print Object and see best Line for you,   Set it with    M900 K X.X
-- S_CURVE for LIN_ADV() is now activated.
+- S_CURVE for LIN_ADV() is now activated. (Beta Feature)
+- LIN_ADV() is defined in configuration_adv.h  -> Search:  Linear Pressure Control
 
 --->>>   STAGE 2  -  Junction Kalibration   <<<---
       https://reprap.org/forum/read.php?1,739819
@@ -32,6 +33,7 @@
 - Some People report Junction Dervitation fits best everywere between:    0.050  <->   0.100
 - Print an Object and Change every few Lines the Junction Kalibration Value +0.005
 - See the Result and select the best fit value with:   M205 J<deviation>
+- Junction Derivationis defined in configuration.h  -> Search: Junction Deviation Factor
 */
 
 //DaKa: ToDo: More Kalibration. example Skew Correction and and and...
@@ -423,12 +425,12 @@
   #define AUTO_POWER_CONTROL      // Enable automatic control of the PS_ON pin
   #if ENABLED(AUTO_POWER_CONTROL)
     #define AUTO_POWER_FANS         // Turn on PSU if fans need power
-    #define AUTO_POWER_E_FANS
-    //#define AUTO_POWER_CONTROLLERFAN   //DaKa: DISBALED -> NO CONTROLLER Fan PIN (NO DEFINITION in PINS file for SKR E3 TURBO, BUT you could use any Pin for this with an Relay...)
-    //#define AUTO_POWER_CHAMBER_FAN     //DaKa: DISBALED -> NO CHAMBER FOR ENDER-3
-    #define AUTO_POWER_COOLER_FAN      //DaKa: ENABLED and USED FOR ONBOARD TEMPERATURE SENSOR (SKR E3 TURBO)
-    //#define AUTO_POWER_E_TEMP        50  //DaKa: DISBALED -> THIS NEED AS FIRST AN IDLE TEMPERATURE MEASUREMENT FOR EXTRUDER MOTOR !!!  // (°C) Turn on PSU if any extruder is over this temperature
-    #define AUTO_POWER_CHAMBER_TEMP    60  //DaKa: ENABLED and SET to 50, because CHAMBER is definted as MainBoard Temperature   // (°C) Turn on PSU if the chamber is over this temperature
+    #define AUTO_POWER_E_FANS       //DaKa: Info: This for Object cooling Fans
+    //#define AUTO_POWER_CONTROLLERFAN       //DaKa: DISBALED -> NO CONTROLLER Fan PIN (NO DEFINITION in PINS file for SKR E3 TURBO, BUT you could use any Pin for this with an Relay...)
+    //#define AUTO_POWER_CHAMBER_FAN         //DaKa: DISBALED -> NO CHAMBER FOR ENDER-3
+    #define AUTO_POWER_COOLER_FAN            //DaKa: DISABLED
+    //#define AUTO_POWER_E_TEMP          50  //DaKa: DISBALED -> THIS NEED AS FIRST AN IDLE TEMPERATURE MEASUREMENT FOR EXTRUDER MOTOR !!!  // (°C) Turn on PSU if any extruder is over this temperature
+    //#define AUTO_POWER_CHAMBER_TEMP    60  //DaKa: DISABLED  // (°C) Turn on PSU if the chamber is over this temperature
     //#define AUTO_POWER_COOLER_TEMP     65  //DaKa: DISBALED -> No Cooler installt for a Laser  THIS IS USED FOR ONBOARD TEMPERATURE SENSOR (SKR E3 TURBO)     // (°C) Turn on PSU if the cooler is over this temperature
     #define POWER_TIMEOUT              300 //DaKa: CHANGED from 30s to 300s for prevent full flashing TFT FW // (s) Turn off power if the machine is idle for this duration
     #define POWER_OFF_DELAY             2  // (s) Delay of poweroff after M81 command. Useful to let fans run for extra time.
@@ -516,7 +518,7 @@
 //#define TEMP_SENSOR_7 0
 #define TEMP_SENSOR_BED 1
 //#define TEMP_SENSOR_PROBE 0
-#define TEMP_SENSOR_CHAMBER 8   //DaKa: ENABLED -> USED for ONBOARD Temperature Sensor, see in PINS Definition FILE for SKR E3 Turbo...
+//#define TEMP_SENSOR_CHAMBER 0
 //#define TEMP_SENSOR_COOLER 0
 //#define TEMP_SENSOR_REDUNDANT 0
 
@@ -575,7 +577,7 @@
 //#define HEATER_6_MINTEMP   5
 //#define HEATER_7_MINTEMP   5
 #define BED_MINTEMP        5
-//#define CHAMBER_MINTEMP    5    //DaKa: DISABLED -> Ender-3 has no Chamber
+//#define CHAMBER_MINTEMP    5
 
 // Above this temperature the heater will be switched off.
 // This can protect components from overheating, but NOT from shorts and failures.
@@ -589,7 +591,7 @@
 //#define HEATER_6_MAXTEMP 275
 //#define HEATER_7_MAXTEMP 275
 #define BED_MAXTEMP      150
-#define CHAMBER_MAXTEMP  75    //DaKa: ENABLED FOR PROTECT MainBOARD TEMPERATURE
+//#define CHAMBER_MAXTEMP  60
 
 /**
  * Thermal Overshoot
@@ -599,7 +601,7 @@
  */
 #define HOTEND_OVERSHOOT 10   //DaKa: CHANGED from 15°C to 10°C  // (°C) Forbid temperatures over MAXTEMP - OVERSHOOT
 #define BED_OVERSHOOT    10   // (°C) Forbid temperatures over MAXTEMP - OVERSHOOT
-#define COOLER_OVERSHOOT  2   //DaKa: DISABLED // (°C) Forbid temperatures closer than OVERSHOOT
+#define COOLER_OVERSHOOT  2   // (°C) Forbid temperatures closer than OVERSHOOT
 
 //===========================================================================
 //============================= PID Settings ================================
@@ -717,13 +719,12 @@
   #define DEFAULT_chamberKd 655.17
   // M309 P37.04 I1.04 D655.17
 
-  // FIND YOUR OWN: "M303 E-2 C8 S50" to run autotune on the chamber at 50 degreesC for 8 cycles.
-#endif // PIDTEMPCHAMBER
+  #endif // PIDTEMPCHAMBER
 
 #if ANY(PIDTEMP, PIDTEMPBED, PIDTEMPCHAMBER)
   //#define PID_DEBUG             // Sends debug data to the serial port. Use 'M303 D' to toggle activation.
   //#define PID_OPENLOOP          // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
-  #define SLOW_PWM_HEATERS        //DaKa: ENABLE (if Heater is driven by Relai)   // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
+  //#define SLOW_PWM_HEATERS      //DaKa: INFO -> This is usefull if all Heaters runs with external Relais // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
   #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
                                   // is more than PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
 #endif
@@ -766,8 +767,8 @@
 
 #define THERMAL_PROTECTION_HOTENDS // Enable thermal protection for all extruders
 #define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
-#define THERMAL_PROTECTION_CHAMBER //DaKa: ENABLED  (THIS IS USED FOR OnBOARD TEMPERATURE PROTECTION !  // Enable thermal protection for the heated chamber
-//#define THERMAL_PROTECTION_COOLER  //DaKa: DSIABLED  // Enable thermal protection for the laser cooling
+//#define THERMAL_PROTECTION_CHAMBER //DaKa: DISBALED  // Enable thermal protection for the heated chamber
+#define THERMAL_PROTECTION_COOLER
 
 //===========================================================================
 //============================= Mechanical Settings =========================
@@ -954,12 +955,12 @@
  * Override with M203
  *                                      X, Y, Z [, I [, J [, K]]], E0 [, E1[, E2...]]
  */
-//DaKa: More than 300mm/s is not usefull, because we try to print with 60mm/s - 180mm/s  The Z-Axis is also slow because more weight on this 4mm/s is very slow, 30mm/s is more as fast enough. The Extruder runs mostly with 35mm/s - 45mm/s
+//DaKa: More than 300mm/s is not usefull, because we try to print with 40mm/s - 160mm/s  The Z-Axis is also slow because more weight on this 4mm/s is very slow, 30mm/s is more as fast enough. The Extruder runs mostly with 35mm/s - 45mm/s
 #define DEFAULT_MAX_FEEDRATE          { 300, 300, 30, 50 }         // (mm/sec)   //DaKa: Marlin 2.0.8.1 Settings:  { 600, 600, 360, 35 }
 #define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
 // DaKa: LAST WOKRING(<28.04.2021):  #define MAX_FEEDRATE_EDIT_VALUES    { 750, 750, 16, 45 } // ...or, set your own edit limits
-  #define MAX_FEEDRATE_EDIT_VALUES    { 600, 600, 50, 60 } // DaKa:  Test Settings
+  #define MAX_FEEDRATE_EDIT_VALUES    { 600, 600, 60, 100 } // DaKa:  Test Settings
 #endif
 
 /**
@@ -970,7 +971,7 @@
  */
 // DaKa: LAST WOKRING(<28.04.2021):  #define DEFAULT_MAX_ACCELERATION      { 800, 800, 200, 1200 }            // DaKa Prusaslicer - Good settings { X, Y, Z, E}
 //(Maximum START SPEED for accelerated moves)
-#define DEFAULT_MAX_ACCELERATION      { 5000, 4000, 100, 5000 }     // DaKa:   ! mm/s !    Test Settings
+#define DEFAULT_MAX_ACCELERATION      { 4000, 4000, 100, 4000 }     // DaKa:   ! mm/s !    Test Settings
 #define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
   #define MAX_ACCEL_EDIT_VALUES       { 8000, 8000, 200, 8000 } // ...or, set your own edit limits
@@ -1632,9 +1633,9 @@
     #define MESH_TEST_LAYER_HEIGHT   0.2  // (mm) Default layer height for G26.
     #define MESH_TEST_HOTEND_TEMP    228    // (°C) Default nozzle temperature for G26.
     #define MESH_TEST_BED_TEMP        73    // (°C) Default bed temperature for G26.
-    #define G26_XY_FEEDRATE           80    // (mm/s) Feedrate for G26 XY moves.
-    #define G26_XY_FEEDRATE_TRAVEL   100    // (mm/s) Feedrate for G26 XY travel moves.
-    #define G26_RETRACT_MULTIPLIER   2.8  // G26 Q (retraction) used by default between mesh test elements.
+    #define G26_XY_FEEDRATE          100    // (mm/s) Feedrate for G26 XY moves.
+    #define G26_XY_FEEDRATE_TRAVEL   140    // (mm/s) Feedrate for G26 XY travel moves.
+    #define G26_RETRACT_MULTIPLIER   2.5  // G26 Q (retraction) used by default between mesh test elements.
   #endif
 
 #endif
@@ -1786,7 +1787,7 @@
 #endif
 
 // Homing speeds (mm/min)
-#define HOMING_FEEDRATE_MM_M { (100*60), (100*60), (12*60) }   //DaKa: CHANGED from  { (50*60), (50*60), (4*60) }   to   { (70*60), (70*60), (7*60) }
+#define HOMING_FEEDRATE_MM_M { (100*60), (100*60), (12*60) }   //DaKa: CHANGED from  { (50*60), (50*60), (4*60) }   to   { (100*60), (100*60), (12*60) }   -> Feedrate XY: 100mm/s Z: 720mm/s
 
 // Validate that endstops are triggered on homing moves
 #define VALIDATE_HOMING_ENDSTOPS
@@ -1899,13 +1900,13 @@
 #define PREHEAT_1_LABEL       "PLA"
 #define PREHEAT_1_TEMP_HOTEND 180
 #define PREHEAT_1_TEMP_BED     70
-//#define PREHEAT_1_TEMP_CHAMBER 35   //DaKa: DISABLED while CHAMBER is USED for Mainboard Temperatrue
+#define PREHEAT_1_TEMP_CHAMBER 35
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
 #define PREHEAT_2_LABEL       "ABS"
 #define PREHEAT_2_TEMP_HOTEND 240
 #define PREHEAT_2_TEMP_BED    110
-//#define PREHEAT_2_TEMP_CHAMBER 35   //DaKa: DISABLED while CHAMBER is USED for Mainboard Temperatrue
+#define PREHEAT_2_TEMP_CHAMBER 35
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
 /**
@@ -1926,9 +1927,9 @@
   #define NOZZLE_PARK_POINT { (X_BED_SIZE + X_MIN_POS + 5), (Y_MIN_POS + 10), 15 }     //DaKa: CHANGED from   { (X_MIN_POS + 10), (Y_MAX_POS - 10), 20 }    to   { (X_BED_SIZE + X_MIN_POS + 5), (Y_MIN_POS + 10), 15 }
   //#define NOZZLE_PARK_X_ONLY          // X move only is required to park
   //#define NOZZLE_PARK_Y_ONLY          // Y move only is required to park
-  #define NOZZLE_PARK_Z_RAISE_MIN   2   // (mm) Always raise Z by at least this distance
-  #define NOZZLE_PARK_XY_FEEDRATE  80   //DaKa: CHANGED from 100mm/s to 70mm/s  // (mm/s) X and Y axes feedrate (also used for delta Z axis)
-  #define NOZZLE_PARK_Z_FEEDRATE   10   // (mm/s) Z axis feedrate (not used for delta printers)
+  #define NOZZLE_PARK_Z_RAISE_MIN     2   // (mm) Always raise Z by at least this distance
+  #define NOZZLE_PARK_XY_FEEDRATE   100   //DaKa: CHANGED from 100mm/s to 70mm/s  // (mm/s) X and Y axes feedrate (also used for delta Z axis)
+  #define NOZZLE_PARK_Z_FEEDRATE     12   //DaKa: CHANGED from 10mm/s  to  12 mm/s// (mm/s) Z axis feedrate (not used for delta printers)
 #endif
 
 /**
