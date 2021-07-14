@@ -1,24 +1,46 @@
 //DaKa: ------------------------------------------------------------------------------
 //DaKa: ----->>>     READ THIS FOR UPPGRADE TFT35-E3-V3 to release-XX27     <<<<<-----
-
-//DaKa: SEE TFT35 release-XX.27 for Marlin Configuration !!!
-//DaKa:  https://github.com/bigtreetech/BIGTREETECH-TouchScreenFirmware/tree/release-xx.27
-//DaKa: CABLE CONNECTION TO:   TFT | 0   AND  EXP1 CONNECTOR.
-//DaKa: ENABLE ONLY: CR10_STOCKDISPLAY FOR THE TFT35-E3-V3  !!!
-//DaKa: USE ONLY BAUDRATE 115200 FOR THIS TFT !!!
-//DaKa: Update the TFT35-E3-V3 FW in FOUR steps:
-//DaKa: 1. Load Firmware only BINARY FIMRWARE to sdcard and TURN ON THE PRINTER
-//DaKa: 2. Then load files for FONTS AND ICONS on sdcard and push to it TFT after that, PRESS RESET.
-//DaKa: 3. Then load file CONFIG.INI on sdcard and push it in the TFT Slot. After that, PRESS RESET.
-//DaKa: 4. Then load file LANGUAGE PACKAGE on sdcard and push it in the TFT Slot. After that, PRESS RESET.
 //DaKa: ------------------------------------------------------------------------------
-//DaKa: ------------------------------------------------------------------------------
+/**
+ SEE TFT35 release-XX.27 for Marlin Configuration !!!
+ https://github.com/bigtreetech/BIGTREETECH-TouchScreenFirmware/tree/release-xx.27
+ CABLE CONNECTION TO:   TFT | 0   AND  EXP1 CONNECTOR.
+ ENABLE ONLY: CR10_STOCKDISPLAY FOR THE TFT35-E3-V3  !!!
+ USE ONLY BAUDRATE 115200 FOR THIS TFT !!!
+ Update the TFT35-E3-V3 FW in FOUR steps:
+ 1. Load Firmware only BINARY FIMRWARE to sdcard and TURN ON THE PRINTER
+ 2. Then load files for FONTS AND ICONS on sdcard and push to it TFT after that, PRESS RESET.
+ 3. Then load file CONFIG.INI on sdcard and push it in the TFT Slot. After that, PRESS RESET.
+ 4. Then load file LANGUAGE PACKAGE on sdcard and push it in the TFT Slot. After that, PRESS RESET.
+----------------------------------------------------------------------------------------*/
 
-//DaKa: --->>>   Linear K Kalibration   <<<---
-//DaKa:  https://marlinfw.org/docs/features/lin_advance.html
-//DaKa:  https://marlinfw.org/tools/lin_advance/k-factor.html
-//DaKa: --------------------------------------
+//DaKa ---------------------------------------------------------------------------
+//DaKa: ----->>>>>    KALIBRATIONS (New Knowledge from: 13-07-2021)     <<<<<-----
+//DaKa ---------------------------------------------------------------------------
 
+/**
+--->>>   STAGE 1  -  Linear K Kalibration   <<<---
+     https://marlinfw.org/docs/features/lin_advance.html
+     https://marlinfw.org/tools/lin_advance/k-factor.html
+- Print Object and see best Line for you,   Set it with    M900 K X.X
+- S_CURVE for LIN_ADV() is now activated.
+
+--->>>   STAGE 2  -  Junction Kalibration   <<<---
+      https://reprap.org/forum/read.php?1,739819
+      https://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html
+- Junction Derivation Calibration:   https://www.thingiverse.com/thing:3463159
+- Some People report Junction Dervitation fits best everywere between:    0.050  <->   0.100
+- Print an Object and Change every few Lines the Junction Kalibration Value +0.005
+- See the Result and select the best fit value with:   M205 J<deviation>
+*/
+
+//DaKa: ToDo: More Kalibration. example Skew Correction and and and...
+
+
+//DaKa: --------------------------------------------------------------------------------
+//DaKa; ----->>>>>    SEHR GUTE, AUSFÜHRLICHE ERKLAERUNGEN, Beispielsweise:     <<<<<---
+//DaKA:            https://www.youtube.com/watch?v=e1AAey3oIZ8
+//DaKa: --------------------------------------------------------------------------------
 
 
 
@@ -932,12 +954,12 @@
  * Override with M203
  *                                      X, Y, Z [, I [, J [, K]]], E0 [, E1[, E2...]]
  */
-// DaKa: LAST WOKRING(<28.04.2021):  #define DEFAULT_MAX_FEEDRATE          { 600, 600, 14, 35 }         // DaKa Prusaslicer - Good settings { X, Y, Z, E}
-#define DEFAULT_MAX_FEEDRATE          { 600, 600, 360, 35 }         // DaKa:  ! mm/s !   -Test Settings
+//DaKa: More than 300mm/s is not usefull, because we try to print with 60mm/s - 180mm/s  The Z-Axis is also slow because more weight on this 4mm/s is very slow, 30mm/s is more as fast enough. The Extruder runs mostly with 35mm/s - 45mm/s
+#define DEFAULT_MAX_FEEDRATE          { 300, 300, 30, 50 }         // (mm/sec)   //DaKa: Marlin 2.0.8.1 Settings:  { 600, 600, 360, 35 }
 #define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
 // DaKa: LAST WOKRING(<28.04.2021):  #define MAX_FEEDRATE_EDIT_VALUES    { 750, 750, 16, 45 } // ...or, set your own edit limits
-  #define MAX_FEEDRATE_EDIT_VALUES    { 900, 900, 480, 45 } // DaKa:  Test Settings
+  #define MAX_FEEDRATE_EDIT_VALUES    { 600, 600, 50, 60 } // DaKa:  Test Settings
 #endif
 
 /**
@@ -948,10 +970,10 @@
  */
 // DaKa: LAST WOKRING(<28.04.2021):  #define DEFAULT_MAX_ACCELERATION      { 800, 800, 200, 1200 }            // DaKa Prusaslicer - Good settings { X, Y, Z, E}
 //(Maximum START SPEED for accelerated moves)
-#define DEFAULT_MAX_ACCELERATION      { 6000, 6000, 500, 6000 }     // DaKa:   ! mm/s !    Test Settings
+#define DEFAULT_MAX_ACCELERATION      { 5000, 4000, 100, 5000 }     // DaKa:   ! mm/s !    Test Settings
 #define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
-  #define MAX_ACCEL_EDIT_VALUES       { 8000, 8000, 800, 8000 } // ...or, set your own edit limits
+  #define MAX_ACCEL_EDIT_VALUES       { 8000, 8000, 200, 8000 } // ...or, set your own edit limits
 #endif
 
 /**
@@ -982,7 +1004,10 @@
  * When changing speed and direction, if the difference is less than the
  * value set here, it may happen instantaneously.
  */
-#define CLASSIC_JERK                        // DaKa Prusaslicer - Good settings { X, Y, Z, E}
+//DaKa:---------------------------------    13.07.2021   -----------------------------------------------------
+//DaKa: DISABLED for try with Junction Dervation. Junction should be faster and better for Lin_ADV with S_CURVE
+//DaKa: -------------------------------------------------------------------------------------------------------
+//#define CLASSIC_JERK                        // DaKa Prusaslicer - Good settings { X, Y, Z, E}
 #if ENABLED(CLASSIC_JERK)
   #define DEFAULT_XJERK 14          // DaKa: CHANGED from 10 to 14
   #define DEFAULT_YJERK 14          // DaKa: CHANGED from 10 to 14
@@ -999,7 +1024,7 @@
   #endif
 #endif
 
-#define DEFAULT_EJERK  3.0         //DaKa: CHANGED from 5.0 to 3.0
+#define DEFAULT_EJERK  5.0         //DaKa: Default: 5.0
 
 /**
  * Junction Deviation Factor
@@ -1008,8 +1033,9 @@
  *   https://reprap.org/forum/read.php?1,739819
  *   https://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html
  */
+//DaKa; Comments from Thingiverse: Ender-3 lies between   0.050 - 0.100   Junction Derivation
 #if DISABLED(CLASSIC_JERK)
-  #define JUNCTION_DEVIATION_MM 0.013 // (mm) Distance from real junction edge
+  #define JUNCTION_DEVIATION_MM 0.050 //DaKa: CHANGED from 0.013 to 0.050   // (mm) Distance from real junction edge
   #define JD_HANDLE_SMALL_SEGMENTS    // Use curvature estimation instead of just the junction angle
                                       // for small segments (< 1mm) with large junction angles (> 135°).
 #endif
@@ -1022,7 +1048,7 @@
  *
  * See https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
  */
-//#define S_CURVE_ACCELERATION     // DaKa: DISBALED    (BUT IN MY LAST FW IS THIS ENABLED, BUT NOW I TRY LIN_ADVANCE (BOTH DIDN't WORK TOGETHER!)     //DaKa: MY Last Info-Text:   Silent Ender-3: ENABLED but some Marlin versions have trouble fromn this to UBL
+//#define S_CURVE_ACCELERATION     // DaKa: DISBALED    (Not Comaptible with LIN_ADV()
 
 //===========================================================================
 //============================= Z Probe Options =============================
@@ -1197,13 +1223,13 @@
 #define PROBING_MARGIN 25   //DaKa: Set same settings in TFT35-E3 -> config.ini
 
 // X and Y axis travel speed (mm/min) between probes
-#define XY_PROBE_FEEDRATE 8400        //DaKa: 8400mm/s² / 60s => 140mm/s    //DaKa: Set same settings in TFT35-E3 -> config.ini
+#define XY_PROBE_FEEDRATE 6000        //DaKa: 6000mm/s² / 60s => 100mm/s    //DaKa: Set same settings in TFT35-E3 -> config.ini
 
 // Feedrate (mm/min) for the first approach when double-probing (MULTIPLE_PROBING == 2)
-#define Z_PROBE_FEEDRATE_FAST (15*60)      //DaKa: CHANGED from (4*60) to (8*60)
+#define Z_PROBE_FEEDRATE_FAST (10*60)      //DaKa: CHANGED from (4*60) to (10*60)
 
 // Feedrate (mm/min) for the "accurate" probe of each point
-#define Z_PROBE_FEEDRATE_SLOW (10*60)      //DaKa: CHANGED from (Z_PROBE_FEEDRATE_FAST / 2)  to  (8*60)
+#define Z_PROBE_FEEDRATE_SLOW (4*60)      //DaKa: CHANGED from (Z_PROBE_FEEDRATE_FAST / 2)  to  (4*60)
 
 /**
  * Probe Activation Switch
@@ -1575,7 +1601,7 @@
  * Turn on with the command 'M111 S32'.
  * NOTE: Requires a lot of PROGMEM!
  */
-//#define DEBUG_LEVELING_FEATURE
+#define DEBUG_LEVELING_FEATURE   //DaKa: ENABLED (This Feature, enable debugging with M111 32 and turn off with M111 0)
 
 #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL, PROBE_MANUALLY)
   // Set a height for the start of manual adjustment
@@ -1680,7 +1706,7 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#define LCD_BED_LEVELING    //DaKa: ENABLED  (BUT IS THIS USEFULL?)
+#define LCD_BED_LEVELING    //DaKa: ENABLED  ->  (This is for manually Mesh edit, BUT only Unified Bed Levelling needs this... )
 
 #if ENABLED(LCD_BED_LEVELING)
   #define MESH_EDIT_Z_STEP  0.01   //DaKa: CHANGED from 0.025mm to 0.01mm (IS CHANGING THIS USEFULL?) // (mm) Step size while manually probing Z axis.
@@ -1760,7 +1786,7 @@
 #endif
 
 // Homing speeds (mm/min)
-#define HOMING_FEEDRATE_MM_M { (100*60), (100*60), (15*60) }   //DaKa: CHANGED from  { (50*60), (50*60), (4*60) }   to   { (70*60), (70*60), (7*60) }
+#define HOMING_FEEDRATE_MM_M { (100*60), (100*60), (12*60) }   //DaKa: CHANGED from  { (50*60), (50*60), (4*60) }   to   { (70*60), (70*60), (7*60) }
 
 // Validate that endstops are triggered on homing moves
 #define VALIDATE_HOMING_ENDSTOPS

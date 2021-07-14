@@ -1511,7 +1511,7 @@
    *
    * :[ 'LCD', 'ONBOARD', 'CUSTOM_CABLE' ]
    */
-  //#define SDCARD_CONNECTION ONBOARD   //DaKa: USELESS is defined in pins_SKR_E3_Trubo.h
+  #define SDCARD_CONNECTION ONBOARD   //DaKa: ???USELESS??? but ENABLED  --> (Is also defined in pins_SKR_E3_Trubo.h ...)
 
   // Enable if SD detect is rendered useless (e.g., by using an SD extender)
   //#define NO_SD_DETECT
@@ -1873,11 +1873,11 @@
  * See https://marlinfw.org/docs/features/lin_advance.html for full instructions.
  */
 #define LIN_ADVANCE    //DaKa: ENABLED (NEW ACTIVATION: 12.06.2021 -> S_CURVE_ACCELERATION MUST DEAKTIVIATED for ACTIVATE LIN_ADVANCE)
-#if ENABLED(LIN_ADVANCE)   //DaKa: THIS FUNCTION IS NEW and MUST SET UP for ENDER ?!? (I thing so, but how knows...)
-  //#define EXTRA_LIN_ADVANCE_K // Enable for second linear advance constants
-  #define LIN_ADVANCE_K 0.22    // Unit: mm compression per 1mm/s extruder speed
-  #define LA_DEBUG            //DaKa: ENABLED for INTERESTING OutPut  // If enabled, this will generate debug information output over USB.
-  //#define EXPERIMENTAL_SCURVE // Enable this option to permit S-Curve Acceleration
+#if ENABLED(LIN_ADVANCE)         //DaKa: THIS FUNCTION IS NEW and MUST SET UP for ENDER ?!? (I thing so, but how knows...)
+  //#define EXTRA_LIN_ADVANCE_K  // Enable for second linear advance constants
+  #define LIN_ADVANCE_K 0.0      //DaKa: CHANGED from 0.22  to 0.0  because we must first Calibrate LIN_ADV() before we can set it here!   // Unit: mm compression per 1mm/s extruder speed
+  //#define LA_DEBUG             // If enabled, this will generate debug information output over USB.
+  #define EXPERIMENTAL_SCURVE    //DaKa: ENABLED (13-07-2021)  -> For LIN_ADV() with Junction Derivation() and fastest speed up to 300mm/s (One Person reportet this setings and other true them...?!?!?)   //Enable this option to permit S-Curve Acceleration
 #endif
 
 // @section leveling
@@ -2135,7 +2135,7 @@
 // For debug-echo: 128 bytes for the optimal speed.
 // Other output doesn't need to be that speedy.
 // :[0, 2, 4, 8, 16, 32, 64, 128, 256]
-#define TX_BUFFER_SIZE 16    //DaKa: CHANGED from 0 to 16
+#define TX_BUFFER_SIZE 128    //DaKa: CHANGED from 0 to 128 (Because some debug features are activated)
 
 // Host Receive Buffer Size
 // Without XON/XOFF flow control (see SERIAL_XON_XOFF below) 32 bytes should be enough.
@@ -2958,7 +2958,8 @@
    * Enable M122 debugging command for TMC stepper drivers.
    * M122 S0/1 will enable continuous reporting.
    */
-  #define TMC_DEBUG    //DaKa: ENABLED THIS FOR DEBUG ONLY !!!
+  
+  #define TMC_DEBUG   //DaKa: ENABLED THIS FOR EXTENDED TMC DEBUG REPORT.
 
   /**
    * You can set your own advanced settings by filling in predefined functions.
