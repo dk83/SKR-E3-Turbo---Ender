@@ -902,7 +902,7 @@
 #if ENABLED(ASSISTED_TRAMMING)
 
   // Define positions for probe points.
-  #define TRAMMING_POINT_XY { {  30, 30 }, { 200, 30 }, { 200, 180 } }      //CHANGED from { {  20, 20 }, { 180,  20 }, { 180, 180 }, { 20, 180 } }   to  { {  30, 30 }, { 200, 30 }, { 200, 180 }   (FOR MY ENDER 3)
+  #define TRAMMING_POINT_XY { {  30, 30 }, { 200, 30 }, { 200, 180 }, { 30, 180 } }      //CHANGED from { {  20, 20 }, { 180,  20 }, { 180, 180 }, { 20, 180 } }   to  { {  30, 30 }, { 200, 30 }, { 200, 180 }   (FOR MY ENDER 3)
 
   // Define position names for probe points.
   #define TRAMMING_POINT_NAME_1 "Front-Left"
@@ -1875,7 +1875,7 @@
 #define LIN_ADVANCE    //DaKa: ENABLED (NEW ACTIVATION: 12.06.2021 -> S_CURVE_ACCELERATION MUST DEAKTIVIATED for ACTIVATE LIN_ADVANCE)
 #if ENABLED(LIN_ADVANCE)         //DaKa: THIS FUNCTION IS NEW and MUST SET UP for ENDER ?!? (I thing so, but how knows...)
   //#define EXTRA_LIN_ADVANCE_K  // Enable for second linear advance constants
-  #define LIN_ADVANCE_K 0.0      //DaKa: CHANGED from 0.22  to 0.0  because we must first Calibrate LIN_ADV() before we can set it here!   // Unit: mm compression per 1mm/s extruder speed
+  #define LIN_ADVANCE_K 0.14      //DaKa: CHANGED from 0.22  to 0.0  because we must first Calibrate LIN_ADV() before we can set it here!   // Unit: mm compression per 1mm/s extruder speed
   //#define LA_DEBUG             // If enabled, this will generate debug information output over USB.
   #define EXPERIMENTAL_SCURVE    //DaKa: ENABLED (13-07-2021)  -> For LIN_ADV() with Junction Derivation() and fastest speed up to 300mm/s (One Person reportet this setings and other true them...?!?!?)   //Enable this option to permit S-Curve Acceleration
 #endif
@@ -1887,12 +1887,12 @@
  * Override if the automatically selected points are inadequate.
  */
 #if EITHER(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_UBL)
-  //#define PROBE_PT_1_X 15
-  //#define PROBE_PT_1_Y 180
-  //#define PROBE_PT_2_X 15
-  //#define PROBE_PT_2_Y 20
-  //#define PROBE_PT_3_X 170
-  //#define PROBE_PT_3_Y 20
+  #define PROBE_PT_1_X 30
+  #define PROBE_PT_1_Y 170
+  #define PROBE_PT_2_X 120
+  #define PROBE_PT_2_Y 30
+  #define PROBE_PT_3_X 200
+  #define PROBE_PT_3_Y 140
 #endif
 
 /**
@@ -1918,15 +1918,15 @@
   #define PROBING_MARGIN_LEFT PROBING_MARGIN         //DaKa: ENABLED
   #define PROBING_MARGIN_RIGHT PROBING_MARGIN        //DaKa: ENABLED
   #define PROBING_MARGIN_FRONT PROBING_MARGIN        //DaKa: ENABLED
-  #define PROBING_MARGIN_BACK (PROBING_MARGIN + 25)  //DaKa: ENABLED for:   "Need more Margin for BackSide, because large Nozzle-To-Probe Offset and Y_MAX_POSITION offset"
+  #define PROBING_MARGIN_BACK (PROBING_MARGIN + 35)  //DaKa: ENABLED for:   "Need more Margin for BackSide, because large Nozzle-To-Probe Offset and Y_MAX_POSITION offset"
 #endif
 
 #if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
   // Override the mesh area if the automatic (max) area is too large
-  //#define MESH_MIN_X MESH_INSET      //DaKa: IN MY LAST FW IS THIS   ENABLED   FOR ME, BUT THIS IS ONLY USEFULL FOR UBL AND MESH-BED-LEVLLING?
-  //#define MESH_MIN_Y MESH_INSET      //DaKa: IN MY LAST FW IS THIS   ENABLED   FOR ME, BUT THIS IS ONLY USEFULL FOR UBL AND MESH-BED-LEVLLING?
-  //#define MESH_MAX_X X_BED_SIZE - (MESH_INSET)    //DaKa: IN MY LAST FW IS THIS   ENABLED   FOR ME, BUT THIS IS ONLY USEFULL FOR UBL AND MESH-BED-LEVLLING?
-  //#define MESH_MAX_Y Y_BED_SIZE - (MESH_INSET)    //DaKa: IN MY LAST FW IS THIS   ENABLED   FOR ME, BUT THIS IS ONLY USEFULL FOR UBL AND MESH-BED-LEVLLING?
+  #define MESH_MIN_X MESH_INSET      //DaKa: ENABLED for UBL
+  #define MESH_MIN_Y MESH_INSET      //DaKa: ENABLED for UBL
+  #define MESH_MAX_X X_BED_SIZE - (MESH_INSET)        //DaKa: ENABLED for UBL
+  #define MESH_MAX_Y Y_BED_SIZE - (MESH_INSET + 35)   //DaKa: ENABLED for UBL with extra offset for Probing Nozzle Offset !!
 #endif
 
 #if BOTH(AUTO_BED_LEVELING_UBL, EEPROM_SETTINGS)
@@ -1937,7 +1937,7 @@
  * Repeatedly attempt G29 leveling until it succeeds.
  * Stop after G29_MAX_RETRIES attempts.
  */
-#define G29_RETRY_AND_RECOVER    //DaKa: ENABLED
+//#define G29_RETRY_AND_RECOVER    //DaKa: ENABLED only for BILINEAR LEVELLING
 #if ENABLED(G29_RETRY_AND_RECOVER)
   #define G29_MAX_RETRIES 3
   #define G29_HALT_ON_FAILURE
@@ -2560,7 +2560,7 @@
 
   #if AXIS_IS_TMC(X)
 //TRY    #define X_CURRENT       860        //DaKa - Working Value (Slow Print): 840mA - Faster print and Jerk higher 10 need more current
-    #define X_CURRENT       725        //DaKa - Working Value (Slow Print): 840mA - Faster print and Jerk higher 10 need more current
+    #define X_CURRENT       830        //DaKa - Working Value (Slow Print): 840mA - Faster print and Jerk higher 10 need more current
     #define X_CURRENT_HOME  X_CURRENT
     #define X_MICROSTEPS     32        // DaKa: Default:16   Set Microsteps to 32 and you must double DEFAULT_AXIS_STEPS_PER_UNIT
     #define X_RSENSE          0.11
@@ -2569,7 +2569,7 @@
   #endif
 
   #if AXIS_IS_TMC(X2)
-    #define X2_CURRENT      860
+    #define X2_CURRENT      830
     #define X2_CURRENT_HOME X2_CURRENT
     #define X2_MICROSTEPS    X_MICROSTEPS
     #define X2_RSENSE         0.12
@@ -2579,7 +2579,7 @@
 
   #if AXIS_IS_TMC(Y)
   //TRY #define Y_CURRENT       900        //DaKa - Working Value (Slow Print): 840mA - Faster print and Jerk higher 10 need more current
-    #define Y_CURRENT       808        //DaKa - Working Value (Slow Print): 840mA - Faster print and Jerk higher 10 need more current
+    #define Y_CURRENT       830        //DaKa - Working Value (Slow Print): 840mA - Faster print and Jerk higher 10 need more current
     #define Y_CURRENT_HOME  Y_CURRENT
     #define Y_MICROSTEPS     32        // DaKa: Default:16   Set Microsteps to 32 and you must double DEFAULT_AXIS_STEPS_PER_UNIT
     #define Y_RSENSE          0.11  //DaKa: TRY 0.11 / BEFORE 0.12
@@ -2588,7 +2588,7 @@
   #endif
 
   #if AXIS_IS_TMC(Y2)
-    #define Y2_CURRENT      900
+    #define Y2_CURRENT      830
     #define Y2_CURRENT_HOME Y2_CURRENT
     #define Y2_MICROSTEPS    Y_MICROSTEPS
     #define Y2_RSENSE         0.11
@@ -2598,7 +2598,7 @@
 
   #if AXIS_IS_TMC(Z)
 //Try    #define Z_CURRENT       900        //DaKa  |-> Bowden: 820mA  <-|-> Direct Drive: 860mA?
-    #define Z_CURRENT       808        //DaKa  |-> Bowden: 820mA  <-|-> Direct Drive: 860mA?
+    #define Z_CURRENT       830        //DaKa  |-> Bowden: 820mA  <-|-> Direct Drive: 860mA?
     #define Z_CURRENT_HOME  Z_CURRENT
     #define Z_MICROSTEPS     32        // DaKa: Default:16   Set Microsteps to 32 and you must double DEFAULT_AXIS_STEPS_PER_UNIT
     #define Z_RSENSE          0.11  //DaKa: TRY 0.11 / BEFORE 0.12
@@ -2607,7 +2607,7 @@
   #endif
 
   #if AXIS_IS_TMC(Z2)
-    #define Z2_CURRENT      900
+    #define Z2_CURRENT      830
     #define Z2_CURRENT_HOME Z2_CURRENT
     #define Z2_MICROSTEPS    Z_MICROSTEPS
     #define Z2_RSENSE         0.11
@@ -2616,7 +2616,7 @@
   #endif
 
   #if AXIS_IS_TMC(Z3)
-    #define Z3_CURRENT      800
+    #define Z3_CURRENT      830
     #define Z3_CURRENT_HOME Z3_CURRENT
     #define Z3_MICROSTEPS    Z_MICROSTEPS
     #define Z3_RSENSE         0.11
@@ -2625,7 +2625,7 @@
   #endif
 
   #if AXIS_IS_TMC(Z4)
-    #define Z4_CURRENT      800
+    #define Z4_CURRENT      830
     #define Z4_CURRENT_HOME Z4_CURRENT
     #define Z4_MICROSTEPS    Z_MICROSTEPS
     #define Z4_RSENSE         0.11
@@ -2634,7 +2634,7 @@
   #endif
 
   #if AXIS_IS_TMC(I)
-    #define I_CURRENT      800
+    #define I_CURRENT      830
     #define I_CURRENT_HOME I_CURRENT
     #define I_MICROSTEPS    16
     #define I_RSENSE         0.11
@@ -2643,7 +2643,7 @@
   #endif
 
   #if AXIS_IS_TMC(J)
-    #define J_CURRENT      800
+    #define J_CURRENT      830
     #define J_CURRENT_HOME J_CURRENT
     #define J_MICROSTEPS    16
     #define J_RSENSE         0.11
@@ -2652,7 +2652,7 @@
   #endif
 
   #if AXIS_IS_TMC(K)
-    #define K_CURRENT      800
+    #define K_CURRENT      830
     #define K_CURRENT_HOME K_CURRENT
     #define K_MICROSTEPS    16
     #define K_RSENSE         0.11
@@ -2662,7 +2662,7 @@
 
   #if AXIS_IS_TMC(E0)
 //Try    #define E0_CURRENT      800        //DaKa  |-> Bowden: 900mA <-|-> Diect Drive: 850mA-920mA? <-| 
-    #define E0_CURRENT       642       //DaKa  |-> Bowden: 900mA <-|-> Diect Drive: 850mA-920mA? <-|
+    #define E0_CURRENT       700       //DaKa  |-> Bowden: 900mA <-|-> Diect Drive: 850mA-920mA? <-|
     #define E0_MICROSTEPS    32        // DaKa: Default:16   Set Microsteps to 32 and you must double DEFAULT_AXIS_STEPS_PER_UNIT
     #define E0_RSENSE         0.11  //DaKa: TRY 0.11 / BEFORE 0.12
     #define E0_CHAIN_POS     -1
@@ -2670,7 +2670,7 @@
   #endif
 
   #if AXIS_IS_TMC(E1)
-    #define E1_CURRENT      800
+    #define E1_CURRENT      700
     #define E1_MICROSTEPS   32
     #define E1_RSENSE         0.12
     #define E1_CHAIN_POS     -1
@@ -2678,7 +2678,7 @@
   #endif
 
   #if AXIS_IS_TMC(E2)
-    #define E2_CURRENT      800
+    #define E2_CURRENT      700
     #define E2_MICROSTEPS   E0_MICROSTEPS
     #define E2_RSENSE         0.11
     #define E2_CHAIN_POS     -1
@@ -2686,7 +2686,7 @@
   #endif
 
   #if AXIS_IS_TMC(E3)
-    #define E3_CURRENT      800
+    #define E3_CURRENT      700
     #define E3_MICROSTEPS   E0_MICROSTEPS
     #define E3_RSENSE         0.11
     #define E3_CHAIN_POS     -1
@@ -2694,7 +2694,7 @@
   #endif
 
   #if AXIS_IS_TMC(E4)
-    #define E4_CURRENT      800
+    #define E4_CURRENT      700
     #define E4_MICROSTEPS   E0_MICROSTEPS
     #define E4_RSENSE         0.11
     #define E4_CHAIN_POS     -1
@@ -2702,7 +2702,7 @@
   #endif
 
   #if AXIS_IS_TMC(E5)
-    #define E5_CURRENT      800
+    #define E5_CURRENT      700
     #define E5_MICROSTEPS   E0_MICROSTEPS
     #define E5_RSENSE         0.11
     #define E5_CHAIN_POS     -1
@@ -2710,7 +2710,7 @@
   #endif
 
   #if AXIS_IS_TMC(E6)
-    #define E6_CURRENT      800
+    #define E6_CURRENT      700
     #define E6_MICROSTEPS   E0_MICROSTEPS
     #define E6_RSENSE         0.11
     #define E6_CHAIN_POS     -1
@@ -2718,7 +2718,7 @@
   #endif
 
   #if AXIS_IS_TMC(E7)
-    #define E7_CURRENT      800
+    #define E7_CURRENT      700
     #define E7_MICROSTEPS   E0_MICROSTEPS
     #define E7_RSENSE         0.11
     #define E7_CHAIN_POS     -1
@@ -2872,25 +2872,25 @@
    */
   #define HYBRID_THRESHOLD
 
-  #define X_HYBRID_THRESHOLD     140 //DaKa: CHANGED from 100mm/s to 140mm/s // [mm/s]
-  #define X2_HYBRID_THRESHOLD    140 //DaKa: CHANGED from 100mm/s to 140mm/s
-  #define Y_HYBRID_THRESHOLD     140 //DaKa: CHANGED from 100mm/s to 140mm/s
-  #define Y2_HYBRID_THRESHOLD    140 //DaKa: CHANGED from 100mm/s to 140mm/s
-  #define Z_HYBRID_THRESHOLD      16 //DaKa: CHANGED from 3mm/s to 15mm/s
-  #define Z2_HYBRID_THRESHOLD     16 //DaKa: CHANGED from 3mm/s to 15mm/s
-  #define Z3_HYBRID_THRESHOLD     16 //DaKa: CHANGED from 3mm/s to 15mm/s
-  #define Z4_HYBRID_THRESHOLD     16 //DaKa: CHANGED from 3mm/s to 15mm/s
-  #define I_HYBRID_THRESHOLD      16 //DaKa: CHANGED from 3mm/s to 15mm/s
-  #define J_HYBRID_THRESHOLD      16 //DaKa: CHANGED from 3mm/s to 15mm/s
-  #define K_HYBRID_THRESHOLD      16 //DaKa: CHANGED from 3mm/s to 15mm/s
-  #define E0_HYBRID_THRESHOLD     42 //DaKa: CHANGED from 30mm/s to 45mm/s
-  #define E1_HYBRID_THRESHOLD     42 //DaKa: CHANGED from 30mm/s to 45mm/s
-  #define E2_HYBRID_THRESHOLD     42 //DaKa: CHANGED from 30mm/s to 45mm/s
-  #define E3_HYBRID_THRESHOLD     42 //DaKa: CHANGED from 30mm/s to 45mm/s
-  #define E4_HYBRID_THRESHOLD     42 //DaKa: CHANGED from 30mm/s to 45mm/s
-  #define E5_HYBRID_THRESHOLD     42 //DaKa: CHANGED from 30mm/s to 45mm/s
-  #define E6_HYBRID_THRESHOLD     42 //DaKa: CHANGED from 30mm/s to 45mm/s
-  #define E7_HYBRID_THRESHOLD     42 //DaKa: CHANGED from 30mm/s to 45mm/s
+  #define X_HYBRID_THRESHOLD     160 //DaKa: CHANGED from 100mm/s to 140mm/s // [mm/s]
+  #define X2_HYBRID_THRESHOLD    160 //DaKa: CHANGED from 100mm/s to 140mm/s
+  #define Y_HYBRID_THRESHOLD     160 //DaKa: CHANGED from 100mm/s to 140mm/s
+  #define Y2_HYBRID_THRESHOLD    160 //DaKa: CHANGED from 100mm/s to 140mm/s
+  #define Z_HYBRID_THRESHOLD      20 //DaKa: CHANGED from 3mm/s to 15mm/s
+  #define Z2_HYBRID_THRESHOLD     20 //DaKa: CHANGED from 3mm/s to 15mm/s
+  #define Z3_HYBRID_THRESHOLD     20 //DaKa: CHANGED from 3mm/s to 15mm/s
+  #define Z4_HYBRID_THRESHOLD     20 //DaKa: CHANGED from 3mm/s to 15mm/s
+  #define I_HYBRID_THRESHOLD      20 //DaKa: CHANGED from 3mm/s to 15mm/s
+  #define J_HYBRID_THRESHOLD      20 //DaKa: CHANGED from 3mm/s to 15mm/s
+  #define K_HYBRID_THRESHOLD      20 //DaKa: CHANGED from 3mm/s to 15mm/s
+  #define E0_HYBRID_THRESHOLD     45 //DaKa: CHANGED from 30mm/s to 45mm/s
+  #define E1_HYBRID_THRESHOLD     45 //DaKa: CHANGED from 30mm/s to 45mm/s
+  #define E2_HYBRID_THRESHOLD     45 //DaKa: CHANGED from 30mm/s to 45mm/s
+  #define E3_HYBRID_THRESHOLD     45 //DaKa: CHANGED from 30mm/s to 45mm/s
+  #define E4_HYBRID_THRESHOLD     45 //DaKa: CHANGED from 30mm/s to 45mm/s
+  #define E5_HYBRID_THRESHOLD     45 //DaKa: CHANGED from 30mm/s to 45mm/s
+  #define E6_HYBRID_THRESHOLD     45 //DaKa: CHANGED from 30mm/s to 45mm/s
+  #define E7_HYBRID_THRESHOLD     45 //DaKa: CHANGED from 30mm/s to 45mm/s
 
   /**
    * Use StallGuard to home / probe X, Y, Z.
