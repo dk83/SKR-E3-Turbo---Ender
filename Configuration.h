@@ -1,6 +1,6 @@
-//DaKa: ------------------------------------------------------------------------------
+//DaKa: My Extruder Direction has changed! Search for "INVERT_E0_DIR" and set it to false or true if your extruder turns in wrong direction!
+
 //DaKa: ----->>>     READ THIS FOR UPPGRADE TFT35-E3-V3 to release-XX27     <<<<<-----
-//DaKa: ------------------------------------------------------------------------------
 /**
  SEE TFT35 release-XX.27 for Marlin Configuration !!!
  https://github.com/bigtreetech/BIGTREETECH-TouchScreenFirmware/tree/release-xx.27
@@ -14,17 +14,34 @@
  4. Then load file LANGUAGE PACKAGE on sdcard and push it in the TFT Slot. After that, PRESS RESET.
 ----------------------------------------------------------------------------------------*/
 
-//DaKa ---------------------------------------------------------------------------
 //DaKa: ----->>>>>    KALIBRATIONS (New Knowledge from: 13-07-2021)     <<<<<-----
-//DaKa ---------------------------------------------------------------------------
 
 /**
---->>>   STAGE 1  -  Linear K Kalibration   <<<---
+ -->>>  BEFORE KALIBRATION Create Prusa Profile with:   <<<---
+--->>>   First Kalibrate your Extruder - each speed should exatly move 100mm Filament   <<<---
+
+- Deactive EACH ACCELERATION IN PRUSALICER     and Set all Tabs to set following Settings: But you must now your Filament Temperature and Diameter
+- Set "Overlap" to 0
+- Set bridge flow to 1
+- Set extrusion faktor to 1
+- set retract for filament to default 2.5 and set extruder speed to 35mm/s ALL other options for extruder to 0/off
+- disable "ensure vertical shell thickness"
+- disable avoid crossing perimetrs
+- enable detect thin wall
+- enable detect bridging perimeters
+- set infill to 0%
+- Set Vertical wall to 1 and Bottom/Top thickness to 0
+- Set extrusion width for ALL Values to 0.40
+- Enable Retract on Layer Change
+- Deactivate Support Material
+ * 
      https://marlinfw.org/docs/features/lin_advance.html
-     https://marlinfw.org/tools/lin_advance/k-factor.html
+     Gernerate Kalibration Pattern:   https://marlinfw.org/tools/lin_advance/k-factor.html
 - Print Object and see best Line for you,   Set it with    M900 K X.X
-- S_CURVE for LIN_ADV() is now activated. (Beta Feature)
-- LIN_ADV() is defined in configuration_adv.h  -> Search:  Linear Pressure Control
+- S_CURVE for LIN_ADV() is now activated.  
+//DaKa:   --->>>   My TEST RESULT for Phaeteus Dragonfly BMS:  0.13   <<<---
+//DaKa:   --->>>   Some little abnormal lines with High Speed Acceleration: Set LIN_ADV() to 0.14   <<<---
+
 
 --->>>   STAGE 2  -  Junction Kalibration   <<<---
       https://reprap.org/forum/read.php?1,739819
@@ -33,16 +50,40 @@
 - Some People report Junction Dervitation fits best everywere between:    0.050  <->   0.100
 - Print an Object and Change every few Lines the Junction Kalibration Value +0.005
 - See the Result and select the best fit value with:   M205 J<deviation>
-- Junction Derivationis defined in configuration.h  -> Search: Junction Deviation Factor
+
+-> DaKa: My Junction Derivation Faktor: between 0.065 - 0.08  -> RESULT: 0.075
+
+
+--->>>   STAGE 3   <<<---
+- Set Extrusion width to 0.44mm for ALL Entrys (if you use a 0.4mm Nozzle)
+- Now Print Thin Wall Objekt and Measure the Wall. If Wall doesnt fit width settings, then CALCULATE Extrusin Faktor!
+- Print Thin Wall again or print XYZ Cube
+
+--->>>   Volumeric Extrusion Kalibration for Hotends:    <<<---
+- Extrude 50mm Filament with Feedrate(mm/min): 120/160/200/240/280/320/360/400   -> Command: G1 E50 F240
+- Show the Extruded Filament and when it is sometimes thicker or thicker extruded, than is it to much Feedrate
+- Now Reduce the the Last Feedrate -10mm/min. Example.: You shown maximum was G1 E50 F360. Now try: G1 E50 F350 | G1 E50 F340
+- When the extruded Filament shows like one line, than you have the maximum Extrusion FeedRate.
+- Now you can Calculate the maximum Extrusion Feedrate for prints:
+- V = r*r * PI * h  ->  (Measured Filament diament / 2) = r   h the height for 1mm Filament, this is always 1
+--->>>   Example for Phaetus Dragonfly BMS   <<<---
+---  Fmax: 375mm/min    Measured Filament Diameter=1.755mm -> r= 0,8775  ->  V = 0,8775*0,8775*3,1415 = 2,41897 mm²  
+---  Volumetric Speed is in mm³/s  ->  Fmax is in mm/min converted  is Fmax = (375mm/min) / 60sec = 6,25mm/sec
+---  Volumetric Limit = 2,41897mm² * 6,25mm/sec =        15.1185 mm³/sec
+---  Set the Volumetric Limit in START g-code:  M200 L15.1185
+
+
+ToDo: Firmware Extruder Retract:  https://marlinfw.org/docs/features/fwretract.html
+
+
 */
-
-//DaKa: ToDo: More Kalibration. example Skew Correction and and and...
-
 
 //DaKa: --------------------------------------------------------------------------------
 //DaKa; ----->>>>>    SEHR GUTE, AUSFÜHRLICHE ERKLAERUNGEN, Beispielsweise:     <<<<<---
 //DaKA:            https://www.youtube.com/watch?v=e1AAey3oIZ8
 //DaKa: --------------------------------------------------------------------------------
+
+//DaKa:   https://www.reddit.com/r/ender3/comments/adb24q/printing_at_120mms_with_quality/
 
 
 
@@ -945,36 +986,33 @@
  * Override with M92
  *                                      X, Y, Z [, I [, J [, K]]], E0 [, E1[, E2...]]
  */
-//--->>>   PLA   <<<---//
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   { 159.85, 159.68, 798.24, 827 }     // DaKa: Own settings for 32 Microsteps
 //--->>>   PETG   <<<---//
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 159.9, 159.64, 800, 825 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 160, 160, 800, 811.4 }
 
 /**
  * Default Max Feed Rate (mm/s)
- * Override with M203
+ * Override with:       M203 [E<units/s>] [T<index>] [X<units/s>] [Y<units/s>] [Z<units/s>]
  *                                      X, Y, Z [, I [, J [, K]]], E0 [, E1[, E2...]]
  */
 //DaKa: More than 300mm/s is not usefull, because we try to print with 40mm/s - 160mm/s  The Z-Axis is also slow because more weight on this 4mm/s is very slow, 30mm/s is more as fast enough. The Extruder runs mostly with 35mm/s - 45mm/s
-#define DEFAULT_MAX_FEEDRATE          { 300, 300, 30, 50 }         // (mm/sec)   //DaKa: Marlin 2.0.8.1 Settings:  { 600, 600, 360, 35 }
+#define DEFAULT_MAX_FEEDRATE          { 500, 500, 18, 35 }         // (mm/sec)   //DaKa: Marlin 2.0.8.1 Settings:  { 600, 600, 360, 35 }
 #define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
 // DaKa: LAST WOKRING(<28.04.2021):  #define MAX_FEEDRATE_EDIT_VALUES    { 750, 750, 16, 45 } // ...or, set your own edit limits
-  #define MAX_FEEDRATE_EDIT_VALUES    { 600, 600, 60, 100 } // DaKa:  Test Settings
+  #define MAX_FEEDRATE_EDIT_VALUES    { 1000, 1000, 30, 60 } // DaKa:  Test Settings
 #endif
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
  * (Maximum start speed for accelerated moves)
- * Override with M201
+ * Override with;     M201 [E<accel>] [T<index>] [X<accel>] [Y<accel>] [Z<accel>]
  *                                      X, Y, Z [, I [, J [, K]]], E0 [, E1[, E2...]]
  */
-// DaKa: LAST WOKRING(<28.04.2021):  #define DEFAULT_MAX_ACCELERATION      { 800, 800, 200, 1200 }            // DaKa Prusaslicer - Good settings { X, Y, Z, E}
-//(Maximum START SPEED for accelerated moves)
-#define DEFAULT_MAX_ACCELERATION      { 4000, 4000, 100, 4000 }     // DaKa:   ! mm/s !    Test Settings
+// DaKa: Set PRINT MAX Acceleration   M201 E3000 X1200 Y1200 Z140
+#define DEFAULT_MAX_ACCELERATION      { 1800, 1800, 240, 3500 }     // DaKa: (SILENT)  Z: 140mm/s | 820mA
 #define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
-  #define MAX_ACCEL_EDIT_VALUES       { 8000, 8000, 200, 8000 } // ...or, set your own edit limits
+  #define MAX_ACCEL_EDIT_VALUES       { 5000, 5000, 360, 5000 } // ...or, set your own edit limits
 #endif
 
 /**
@@ -984,17 +1022,12 @@
  *   M204 P    Acceleration
  *   M204 R    Retract Acceleration
  *   M204 T    Travel Acceleration
- *
- *   DaKa:  M204 P450 R400 T550
  */
-// DaKa Silent Ender-3:  ***_ACCELERATION 400
-// DaKa: LAST DEFAULT (<28.04.2021):   #define DEFAULT_ACCELERATION           500    // X, Y, Z and E acceleration for printing moves   // DaKa - Last Default: 350
-// DaKa: LAST DEFAULT (<28.04.2021):   #define DEFAULT_RETRACT_ACCELERATION   500    // E acceleration for retracts                     
-// DaKa: LAST DEFAULT (<28.04.2021):   #define DEFAULT_TRAVEL_ACCELERATION    500    // X, Y, Z acceleration for non printing moves    
-
-#define DEFAULT_ACCELERATION            600    //DaKa: Last 600   ORG|-> X, Y, Z and E acceleration for printing moves  
-#define DEFAULT_RETRACT_ACCELERATION    600    //Daka: Last:600   ORG|-> E acceleration for retracts 
-#define DEFAULT_TRAVEL_ACCELERATION     600    //DaKa: Last:800   ORG|->  X, Y, Z acceleration for non printing moves 
+//DaKa:  Set STARTING acceleration:
+//DaKa:  M204 P450 R400 T550
+#define DEFAULT_ACCELERATION            800    //DaKa: Last 600   ORG|-> X, Y, Z and E acceleration for printing moves  
+#define DEFAULT_RETRACT_ACCELERATION    800    //Daka: Last:600   ORG|-> E acceleration for retracts 
+#define DEFAULT_TRAVEL_ACCELERATION     800    //DaKa: Last:800   ORG|->  X, Y, Z acceleration for non printing moves 
 
 
 /**
@@ -1036,7 +1069,7 @@
  */
 //DaKa; Comments from Thingiverse: Ender-3 lies between   0.050 - 0.100   Junction Derivation
 #if DISABLED(CLASSIC_JERK)
-  #define JUNCTION_DEVIATION_MM 0.050 //DaKa: CHANGED from 0.013 to 0.050   // (mm) Distance from real junction edge
+  #define JUNCTION_DEVIATION_MM 0.2 //DaKa: CHANGED from 0.013 to 0.050   // (mm) Distance from real junction edge
   #define JD_HANDLE_SMALL_SEGMENTS    // Use curvature estimation instead of just the junction angle
                                       // for small segments (< 1mm) with large junction angles (> 135°).
 #endif
@@ -1216,18 +1249,18 @@
  */
 //DaKa ---------------------------------------------------------------
 //DaKa --->>>   Hydra Fan Duct with Paheteus Dragonfly Hotend   <<<---
-#define NOZZLE_TO_PROBE_OFFSET { 1.4, -41.5, -0.85 }    //  DaKa: DragonFly with CR-10 Conector
+#define NOZZLE_TO_PROBE_OFFSET { 1.4, -41.5, -0.90 }    //  DaKa: DragonFly with CR-10 Conector
 
 
 // Most probes should stay away from the edges of .the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
-#define PROBING_MARGIN 25   //DaKa: Set same settings in TFT35-E3 -> config.ini
+#define PROBING_MARGIN 15   //DaKa: Set same settings in TFT35-E3 -> config.ini
 
 // X and Y axis travel speed (mm/min) between probes
 #define XY_PROBE_FEEDRATE 6000        //DaKa: 6000mm/s² / 60s => 100mm/s    //DaKa: Set same settings in TFT35-E3 -> config.ini
 
 // Feedrate (mm/min) for the first approach when double-probing (MULTIPLE_PROBING == 2)
-#define Z_PROBE_FEEDRATE_FAST (10*60)      //DaKa: CHANGED from (4*60) to (10*60)
+#define Z_PROBE_FEEDRATE_FAST (12*60)      //DaKa: CHANGED from (4*60) to (10*60)
 
 // Feedrate (mm/min) for the "accurate" probe of each point
 #define Z_PROBE_FEEDRATE_SLOW (4*60)      //DaKa: CHANGED from (Z_PROBE_FEEDRATE_FAST / 2)  to  (4*60)
@@ -1359,8 +1392,8 @@
 // @section machine
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#define INVERT_X_DIR false     //DaKa:  Without LINEAR RAIL: Set to TRUE if Motor is inverted!
-#define INVERT_Y_DIR true      //DaKa:  Without LINEAR RAIL: Set to FALSE if Motor is inverted!
+#define INVERT_X_DIR false     //DaKa:  (MARCO) Without LINEAR RAIL: Set to TRUE if Motor is inverted!
+#define INVERT_Y_DIR true      
 #define INVERT_Z_DIR false
 //#define INVERT_I_DIR false
 //#define INVERT_J_DIR false
@@ -1369,7 +1402,7 @@
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR false
+#define INVERT_E0_DIR true   //DaKa: (MARCO) My Extruder turns in wrong Direction, I inverted the direction here
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
@@ -1576,8 +1609,8 @@
  */
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
-#define AUTO_BED_LEVELING_BILINEAR     //DaKa: ENABLED and working on Ender-3 with BL-Touch v3.1
-//#define AUTO_BED_LEVELING_UBL
+//#define AUTO_BED_LEVELING_BILINEAR     //DaKa: ENABLED and working on Ender-3 with BL-Touch v3.1
+#define AUTO_BED_LEVELING_UBL   //DaKa: NEW axtivated (19.07.2021)
 //#define MESH_BED_LEVELING
 
 /**
@@ -1602,7 +1635,7 @@
  * Turn on with the command 'M111 S32'.
  * NOTE: Requires a lot of PROGMEM!
  */
-#define DEBUG_LEVELING_FEATURE   //DaKa: ENABLED (This Feature, enable debugging with M111 32 and turn off with M111 0)
+//#define DEBUG_LEVELING_FEATURE   //DaKa: ENABLED (This Feature, enable debugging with M111 32 and turn off with M111 0)
 
 #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL, PROBE_MANUALLY)
   // Set a height for the start of manual adjustment
@@ -1675,8 +1708,8 @@
 
   //#define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
 
-  #define MESH_INSET 1              // Set Mesh bounds as an inset region of the bed
-  #define GRID_MAX_POINTS_X 10      // Don't use more than 15 points per axis, implementation limited.
+  #define MESH_INSET 15             //DaKa: CHANGED from 1 to 15mm // Set Mesh bounds as an inset region of the bed
+  #define GRID_MAX_POINTS_X 15      // Don't use more than 15 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   //#define UBL_HILBERT_CURVE       // Use Hilbert distribution for less travel when probing multiple points
@@ -1687,7 +1720,7 @@
   //#define UBL_Z_RAISE_WHEN_OFF_MESH 2.5 // When the nozzle is off the mesh, this value is used
                                           // as the Z-Height correction value.
 
-  //#define UBL_MESH_WIZARD         // Run several commands in a row to get a complete mesh
+  #define UBL_MESH_WIZARD         //DaKa: ENABLED  // Run several commands in a row to get a complete mesh
 
 #elif ENABLED(MESH_BED_LEVELING)
 
@@ -1787,7 +1820,7 @@
 #endif
 
 // Homing speeds (mm/min)
-#define HOMING_FEEDRATE_MM_M { (100*60), (100*60), (12*60) }   //DaKa: CHANGED from  { (50*60), (50*60), (4*60) }   to   { (100*60), (100*60), (12*60) }   -> Feedrate XY: 100mm/s Z: 720mm/s
+#define HOMING_FEEDRATE_MM_M { (80*60), (80*60), (12*60) }   //DaKa: CHANGED from  { (50*60), (50*60), (4*60) }   to   { (100*60), (100*60), (12*60) }   -> Feedrate XY: 100mm/s Z: 720mm/s
 
 // Validate that endstops are triggered on homing moves
 #define VALIDATE_HOMING_ENDSTOPS
@@ -1822,17 +1855,17 @@
  *    +-------------->X     +-------------->X     +-------------->Y
  *     XY_SKEW_FACTOR        XZ_SKEW_FACTOR        YZ_SKEW_FACTOR
  */
-//#define SKEW_CORRECTION  //  DaKa:  ENABLE for your Own Settings
+#define SKEW_CORRECTION  //  DaKa:  ENABLED
 
 #if ENABLED(SKEW_CORRECTION)
   // Input all length measurements here:
-  #define XY_DIAG_AC 282.8427124746
-  #define XY_DIAG_BD 282.8427124746
-  #define XY_SIDE_AD 200
+  #define XY_DIAG_AC 280.64   //DaKa: Measurement from Marlin 2.0.9.1  ->  Default Acceleration 800, Lin_ADV(0.14), Junction(1.0), XY-Steps:160
+  #define XY_DIAG_BD 283.18   //DaKa: Measurement from Marlin 2.0.9.1  ->  Default Acceleration 800, Lin_ADV(0.14), Junction(1.0), XY-Steps:160
+  #define XY_SIDE_AD 199.14   //DaKa: Measurement from Marlin 2.0.9.1  ->  Default Acceleration 800, Lin_ADV(0.14), Junction(1.0), XY-Steps:160
 
   // Or, set the default skew factors directly here
   // to override the above measurements:
-  #define XY_SKEW_FACTOR 0.0    //DaKa: YOU MUSN't CALCULATE you can only use the measurement value multiplicate with 2, but this use less calculation Power!!!
+  //#define XY_SKEW_FACTOR 0.0    //DaKa: YOU MUSN't CALCULATE you can only use the measurement value multiplicate with 2, but this use less calculation Power!!!
 
   //#define SKEW_CORRECTION_FOR_Z
   #if ENABLED(SKEW_CORRECTION_FOR_Z)
